@@ -1,23 +1,26 @@
-const int analogPin = 0;
-float raw;
+
+
+const int analogPin = 0;	//input for thermistor sensor
 const int Relay1trig = 12;
 const int Relay2trig = 8;
-float C;
-float targettemp = 29.00;
-float targettempdelta = 1;
 const int R1 = 20000;
-float R2 = 0;
-float sumraw;
-float avgraw;
-float buffer = 0;
+
 int achievedtargettemp;
 int htr_on;
 int light_on;
 int LEDpin = 9;
 
+float C;
+float raw;
+float targettemp = 29.00;
+float targettempdelta = 1;
+float R2 = 0;
+float sumraw;
+float avgraw;
+float buffer = 0;
+
 #define THERMISTORPIN A0
 #define SERIESRESISTOR 20000
-
 
 /////////////////////////For OLED////////////////////////
 #include <SPI.h>
@@ -81,18 +84,21 @@ void setup()
 {
 	Wire.begin();
 	Serial.begin(9600);
+	
 	pinMode(Relay1trig, OUTPUT);
 	digitalWrite(Relay1trig, HIGH);
+	
 	pinMode(Relay2trig, OUTPUT);
 	digitalWrite(Relay2trig, HIGH);
+	
 	analogReference(EXTERNAL);
+	
 	//pinMode(LEDpin, OUTPUT);
 	//digitalWrite(LEDpin, LOW);
-
-
+	
 	//set the initial time here, after setting the time, comment this section
 	//DS3231 seconds, minutes, hours, day, date, month, year
-	//setDS3231time(00,34,22,5,4,5,17);
+	setDS3231time(00,40,23,5,4,5,17);
 	display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
 	display.clearDisplay();
 }
@@ -115,6 +121,8 @@ void setDS3231time(byte second, byte minute, byte hour, byte dayOfWeek, byte
 	Wire.write(decToBcd(year)); // set year (0 to 99)
 	Wire.endTransmission();
 }
+
+
 void readDS3231time(byte *second,
 	byte *minute,
 	byte *hour,
@@ -136,6 +144,8 @@ void readDS3231time(byte *second,
 	*month = bcdToDec(Wire.read());
 	*year = bcdToDec(Wire.read());
 }
+
+
 void displayTime()
 {
 	byte second, minute, hour, dayOfWeek, dayOfMonth, month, year;
@@ -389,6 +399,7 @@ void displayTime()
 	}
 
 }
+
 
 void ReadTempAndHum()
 {
