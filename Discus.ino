@@ -9,6 +9,14 @@ int achievedtargettemp;
 int htr_on;
 int light_on;
 int LEDpin = 9;
+int hourmemory = 0;
+int dawn = 8;
+int dusk = 24;
+int midday = (dawn + dusk) / 2;
+int minPWM = 5;
+int maxPWM = 150;
+int stepsize = (maxPWM - minPWM) / (midday - dawn);
+int PWM = minPWM;
 
 float C;
 float raw;
@@ -98,7 +106,7 @@ void setup()
 	
 	//set the initial time here, after setting the time, comment this section
 	//DS3231 seconds, minutes, hours, day, date, month, year
-	setDS3231time(00,40,23,5,4,5,17);
+	//setDS3231time(00,53,12,6,4,5,17);
 	display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
 	display.clearDisplay();
 }
@@ -428,7 +436,7 @@ void ReadTempAndHum()
 
 	display.setCursor(0, 38);
 	display.print("Dawn:");
-	display.print("00:00");
+	display.print(dawn);
 
 	display.setCursor(65, 38);
 	display.print("Htr:");
@@ -444,15 +452,33 @@ void ReadTempAndHum()
 
 	display.setCursor(0, 47);
 	display.print("Dusk:");
-	display.print("23:00");
+	display.print(dusk);
 
 	display.setCursor(0, 56);
 	display.print("PWM:");
-	display.print(100.00, 1);
-	display.print("%");
+	display.print(PWM);
+	//display.print("%");
 
 }
 
+void LEDPWM(int x)
+{
+	if (x < dawn || x > dusk)
+	{
+		return minPWM;
+	}
+	else
+	{
+		if (hour <= midday)
+		{
+			return ((hour - dawn) * stepsize) + minPWM;
+		}
+		else
+		{
+			return maxPWM - ((hour - midday) * stepsize);
+		}
+	}
+}
 
 void loop()
 {
@@ -507,12 +533,21 @@ void loop()
 		delay(10);
 	}
 
-	analogWrite(LEDpin, 1);
+	
 
 	digitalWrite(Relay2trig, LOW);
 
 	displayTime(); // display the real-time clock data on the Serial Monitor,
 	ReadTempAndHum();
+
+	if (hour != hourmemory)
+	{
+		PWM = LEDPWM(hour);
+		analogWrite(LEDpin, PWM);
+		hourmemory = hour;
+	}
+	//LEDlight(hour);
+	//analogWrite(LEDpin, 100);
 
 	delay(490);
 
