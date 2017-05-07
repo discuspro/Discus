@@ -562,8 +562,17 @@ void loop()
 	Serial.println(PWM);
 	//LEDlight(hour);
 	
+	if (PWM < minPWM)
+	{
+		PWM = minPWM;
+	}
+	else if (PWM > maxPWM)
+	{
+		PWM = maxPWM;
+	}
+	
 	analogWrite(LEDpin, PWM);
-
+	
 	delay(490);
 
 	display.display();
