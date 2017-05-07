@@ -10,10 +10,10 @@ int htr_on;
 int light_on;
 int LEDpin = 9;
 int hourmemory = 0;
-int dawn = 8;
-int dusk = 23;
+int dawn = 7;
+int dusk = 22;
 int midday = (dawn + dusk) / 2;
-int minPWM = 1;
+int minPWM = 0;
 int maxPWM = 255;
 int stepsize = (maxPWM - minPWM) / (midday - dawn);
 int PWM;
@@ -538,29 +538,23 @@ void loop()
 		delay(10);
 	}
 
-	
 
 	digitalWrite(Relay2trig, LOW);
 
 	displayTime(); // display the real-time clock data on the Serial Monitor,
 	ReadTempAndHum();
 
-	//hourtest = (DEC)hourtest;
-
-	//Serial.println(hourtest);
 	
 	if (hourtest != hourmemory)
 	{
 		LEDPWM(hourtest);
-		//Serial.println(PWM);
-		//analogWrite(LEDpin, PWM);
 		hourmemory = hourtest;
 	}
 	
 	Serial.println(hourtest);
 	Serial.println(hourmemory);
 	Serial.println(PWM);
-	//LEDlight(hour);
+	
 	
 	if (PWM < minPWM)
 	{
