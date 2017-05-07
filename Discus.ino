@@ -11,12 +11,14 @@ int light_on;
 int LEDpin = 9;
 int hourmemory = 0;
 int dawn = 8;
-int dusk = 24;
+int dusk = 23;
 int midday = (dawn + dusk) / 2;
-int minPWM = 5;
-int maxPWM = 150;
+int minPWM = 1;
+int maxPWM = 255;
 int stepsize = (maxPWM - minPWM) / (midday - dawn);
-int PWM = minPWM;
+int PWM;
+int hourtest;
+int test = 0;
 
 float C;
 float raw;
@@ -106,9 +108,11 @@ void setup()
 	
 	//set the initial time here, after setting the time, comment this section
 	//DS3231 seconds, minutes, hours, day, date, month, year
-	//setDS3231time(00,53,12,6,4,5,17);
+	//setDS3231time(00,20,20,7,6,5,17);
 	display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
 	display.clearDisplay();
+
+	analogWrite(LEDpin, minPWM);
 }
 
 
@@ -162,6 +166,7 @@ void displayTime()
 		&year);
 	// send it to the serial monitor
 	Serial.print(hour, DEC);
+	hourtest = hour - test;
 	// convert the byte variable to a decimal number when displayed
 	Serial.print(":");
 	if (minute < 10)
@@ -465,17 +470,17 @@ void LEDPWM(int x)
 {
 	if (x < dawn || x > dusk)
 	{
-		return minPWM;
+		PWM = minPWM;
 	}
 	else
 	{
-		if (hour <= midday)
+		if (x <= midday)
 		{
-			return ((hour - dawn) * stepsize) + minPWM;
+			PWM = ((x - dawn) * stepsize) + minPWM;
 		}
 		else
 		{
-			return maxPWM - ((hour - midday) * stepsize);
+			PWM = maxPWM - ((x - midday) * stepsize);
 		}
 	}
 }
@@ -495,7 +500,7 @@ void loop()
 	R2 = (1023 / raw) - 1;
 	R2 = R1 / R2;
 
-	Serial.println(R2);
+	//Serial.println(R2);
 
 	C = (-0.00211416 * R2) + 47.93868922;
 	Serial.print("C: ");
@@ -540,20 +545,31 @@ void loop()
 	displayTime(); // display the real-time clock data on the Serial Monitor,
 	ReadTempAndHum();
 
-	if (hour != hourmemory)
+	//hourtest = (DEC)hourtest;
+
+	//Serial.println(hourtest);
+	
+	if (hourtest != hourmemory)
 	{
-		PWM = LEDPWM(hour);
-		analogWrite(LEDpin, PWM);
-		hourmemory = hour;
+		LEDPWM(hourtest);
+		//Serial.println(PWM);
+		//analogWrite(LEDpin, PWM);
+		hourmemory = hourtest;
 	}
+	
+	Serial.println(hourtest);
+	Serial.println(hourmemory);
+	Serial.println(PWM);
 	//LEDlight(hour);
-	//analogWrite(LEDpin, 100);
+	
+	analogWrite(LEDpin, PWM);
 
 	delay(490);
 
 	display.display();
 	//The portion of the screen that shows the time and date are cleared
 	display.fillRect(0, 0, 128, 20, BLACK);
+	display.fillRect(0, 0, 56, 80, BLACK);
 	display.fillRect(30, 20, 30, 50, BLACK);
 	display.fillRect(90, 20, 30, 100, BLACK);
 
