@@ -14,7 +14,7 @@ int dawn = 7;
 int dusk = 22;
 int midday = (dawn + dusk) / 2;
 int minPWM = 0;
-int maxPWM = 255;
+int maxPWM = 100;
 int stepsize = (maxPWM - minPWM) / (midday - dawn);
 int PWM;
 int hourtest;
@@ -22,7 +22,7 @@ int test = 0;
 
 float C;
 float raw;
-float targettemp = 29.00;
+float targettemp = 34.00;
 float targettempdelta = 1;
 float R2 = 0;
 float sumraw;
@@ -112,7 +112,7 @@ void setup()
 	display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
 	display.clearDisplay();
 
-	analogWrite(LEDpin, minPWM);
+	//analogWrite(LEDpin, minPWM);
 }
 
 
@@ -500,9 +500,9 @@ void loop()
 	R2 = (1023 / raw) - 1;
 	R2 = R1 / R2;
 
-	//Serial.println(R2);
+	Serial.println(R2);
 
-	C = (-0.00211416 * R2) + 47.93868922;
+	C = (-0.003647 * R2) + 60.517325;
 	Serial.print("C: ");
 	Serial.println(C);
 
